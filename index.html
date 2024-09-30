@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unique Google Gravity</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+        }
+
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .element {
+            position: absolute;
+            background-color: #4285f4;
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div class="element" style="left: 100px; top: 100px;">Google</div>
+    <div class="element" style="left: 200px; top: 150px;">Search</div>
+    <div class="element" style="left: 300px; top: 50px;">I'm Feeling Lucky</div>
+</div>
+
+<script>
+   
+    const gravity = 0.5;
+    const bounceFactor = 0.7;
+
+    const elements = document.querySelectorAll('.element');
+    const container = document.getElementById('container');
+
+    elements.forEach(element => {
+        element.dx = Math.random() * 10 - 5;
+        element.dy = Math.random() * 10 - 5;
+        element.addEventListener('click', () => applyGravity(element));
+    });
+
+    function applyGravity(el) {
+        function animate() {
+            
+            el.style.left = (parseFloat(el.style.left) + el.dx) + 'px';
+            el.style.top = (parseFloat(el.style.top) + el.dy) + 'px';
+
+           
+            el.dy += gravity;
+
+           
+            if (parseFloat(el.style.left) <= 0 || parseFloat(el.style.left) >= container.clientWidth - el.offsetWidth) {
+                el.dx = -el.dx * bounceFactor;
+            }
+
+            if (parseFloat(el.style.top) >= container.clientHeight - el.offsetHeight) {
+                el.dy = -el.dy * bounceFactor;
+                el.style.top = (container.clientHeight - el.offsetHeight) + 'px';
+            }
+
+            if (parseFloat(el.style.top) <= 0) {
+                el.dy = Math.abs(el.dy);
+            }
+
+            
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
+    
+    elements.forEach(el => {
+        el.onmousedown = function(event) {
+            let shiftX = event.clientX - el.getBoundingClientRect().left;
+            let shiftY = event.clientY - el.getBoundingClientRect().top;
+
+            function moveAt(pageX, pageY) {
+                el.style.left = pageX - shiftX + 'px';
+                el.style.top = pageY - shiftY + 'px';
+            }
+
+            function onMouseMove(event) {
+                moveAt(event.pageX, event.pageY);
+            }
+
+            document.addEventListener('mousemove', onMouseMove);
+
+            el.onmouseup = function() {
+                document.removeEventListener('mousemove', onMouseMove);
+                el.onmouseup = null;
+                applyGravity(el); 
+            };
+        };
+
+        el.ondragstart = function() {
+            return false;
+        };
+    });
+</script>
+</body>
+</html>
